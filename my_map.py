@@ -7,6 +7,7 @@
 import folium                    #map drawing tool
 import pandas as pd              #data handling tool
 import heapq                     #or dijikstra algorithm
+import osmnx as ox
 
 my_map = folium.Map(location=[28.6139, 77.2090], zoom_start=12)
 
@@ -92,3 +93,39 @@ else:
     print(f"No path found between {start_poi} and {end_poi}")
     
 my_map.save("Delhi-Shortest-Route-Planner.html")
+
+
+#real time
+place="Delhi,India"
+graph = ox.graph_from_place(place, network_type="drive", simplify=True) # Simplify graph
+
+
+#finds the nodes nearest to the POIs in the graph we downloaded
+poi_nodes = {}
+for index, row in poi_data.iterrows():
+    node = ox.distance.nearest_nodes(graph, row['Longitude'], row['Latitude'])
+    poi_nodes[row['Name']] = node
+
+
+#calculate the shortest path using real road data
+start_node = poi_nodes[start_poi]
+end_node = poi_nodes[end_poi]
+
+route = ox.shortest_path(graph, start_node, end_node, weight="length") #uses osmnx's built-in shortest path function
+
+#To draw the route on maps
+if route:  # Check if a route was found (it's possible no path exists)
+    points = []  # Create an empty list to store the latitude and longitude of each point in the route
+    for node in route:  # Iterate through each node (intersection) in the calculated route
+        point = graph.nodes[node]  # Get the data (including latitude and longitude) for the current node from the graph
+        points.append([point['y'], point['x']])  # Add the latitude (point['y']) and longitude (point['x']) to the points list.  Important: Folium expects latitude first, then longitude.
+
+    folium.PolyLine(points, color="blue", weight=2.5, opacity=1).add_to(my_map)  # Create a line on the map connecting the points
+
+    print(f"Shortest path: {route}")  # Print the list of nodes in the path
+    # Calculate and print the total distance of the route
+    total_distance = sum(ox.utils_graph.get_edge_attribute(graph, route[i], route[i+1], "length") for i in range(len(route)-1))
+    print(f"Shortest distance: {total_distance:.2f} meters")
+
+else:
+    print(f"No path found between {start_poi} and {end_poi}")  # Print a message if no route was found
