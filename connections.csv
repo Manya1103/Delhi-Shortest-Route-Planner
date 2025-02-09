@@ -1,0 +1,6 @@
+POI1,POI2,Distance
+Restaurant A, Park B,1.5
+Park B, Hospital C,2
+Restaurant A, Hospital C,3
+Hospital C,Restaurant A,3
+
