@@ -92,7 +92,6 @@ if shortest_path:
 else:
     print(f"No path found between {start_poi} and {end_poi}")
     
-my_map.save("Delhi-Shortest-Route-Planner.html")
 
 
 #real time
@@ -129,3 +128,7 @@ if route:  # Check if a route was found (it's possible no path exists)
 
 else:
     print(f"No path found between {start_poi} and {end_poi}")  # Print a message if no route was found
+    
+    
+    
+    my_map.save("Delhi-Shortest-Route-Planner.html")
